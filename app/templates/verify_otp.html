@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify OTP – CorteX{% endblock %}
+
+{% block content %}
+
+<style>
+    .container {
+        max-width: 600px;
+        margin-top: 80px;
+    }
+
+
+    .otp-card {
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        padding: 40px 30px;
+        position: relative;
+    }
+
+    .otp-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+
+    h2 {
+        color: #1f2d3d;
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+
+    .btn-primary {
+        background-color: #4facfe;
+        border-color: #4facfe;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #00f2fe;
+        border-color: #00f2fe;
+        transform: scale(1.05);
+    }
+
+
+    .form-control {
+        border-radius: 8px;
+        border: 2px solid #e1e1e1;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #4facfe;
+        box-shadow: 0 0 5px rgba(79, 172, 254, 0.8);
+    }
+
+
+    .resend-otp {
+        text-align: center;
+        display: block;
+        margin-top: 20px;
+        color: #4facfe;
+        font-weight: 500;
+    }
+
+    .resend-otp:hover {
+        color: #00f2fe;
+        text-decoration: underline;
+    }
+
+
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        border-width: 2px;
+    }
+
+
+    .tooltip-inner {
+        background-color: #4facfe;
+    }
+</style>
+
+
+<div class="container">
+    <div class="otp-card">
+        <h2>Verify OTP</h2>
+
+
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="mb-4">
+                {{ form.otp.label(class="form-label") }}
+                {{ form.otp(class="form-control", placeholder="Enter OTP") }}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                <span class="spinner-border spinner-border-sm d-none" id="otp-spinner" role="status"
+                    aria-hidden="true"></span>
+                <span id="otp-button-text">Verify OTP</span>
+            </button>
+        </form>
+
+
+        <p class="mt-3 text-center">
+            Didn't receive an OTP?
+            <a href="{{ url_for('main.register') }}" class="resend-otp" data-bs-toggle="tooltip"
+                title="Resend the OTP">Resend OTP</a>
+        </p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+
+
+    document.querySelector('form').addEventListener('submit', function (event) {
+        var spinner = document.getElementById('otp-spinner');
+        var buttonText = document.getElementById('otp-button-text');
+        var submitButton = event.target.querySelector('button');
+
+        spinner.classList.remove('d-none');
+        buttonText.classList.add('d-none');
+        submitButton.disabled = true;
+
+        setTimeout(function () {
+
+
+            submitButton.disabled = false;
+            spinner.classList.add('d-none');
+            buttonText.classList.remove('d-none');
+        }, 2000);
+    });
+</script>
+{% endblock %}

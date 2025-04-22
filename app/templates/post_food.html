@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+  .form-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  }
+
+
+  .btn-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  }
+
+
+  .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+
+
+  .price-field {
+    transition: all 0.3s ease;
+  }
+
+
+  .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 2px;
+  }
+
+
+  .fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+
+  .form-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+
+  .form-label .fas {
+    margin-right: 10px;
+  }
+</style>
+
+
+<div class="container mt-5 fade-in">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="form-card shadow-sm rounded-3 p-4">
+        <h3 class="text-center mb-4">
+          <i class="fas fa-{{ 'edit' if edit_mode else 'plus-circle' }} me-2 text-primary"></i>
+          {{ 'Edit Food Listing' if edit_mode else 'Post Food Listing' }}
+        </h3>
+
+        <form method="POST" enctype="multipart/form-data">
+          {{ form.hidden_tag() }}
+
+
+          <div class="mb-3">
+            <label for="item_name" class="form-label"><i class="fas fa-utensils"></i> {{ form.item_name.label }}</label>
+            {{ form.item_name(class="form-control", id="item_name", value=form.item_name.data if form.item_name.data
+            else '') }}
+          </div>
+
+
+          <div class="mb-3">
+            <label for="description" class="form-label"><i class="fas fa-info-circle"></i> {{ form.description.label
+              }}</label>
+            {{ form.description(class="form-control", id="description", value=form.description.data if
+            form.description.data else '') }}
+          </div>
+
+
+          <div class="mb-3">
+            <label for="quantity" class="form-label"><i class="fas fa-cogs"></i> {{ form.quantity.label }}</label>
+            {{ form.quantity(class="form-control", id="quantity", value=form.quantity.data if form.quantity.data else
+            '') }}
+          </div>
+
+
+          <div class="mb-3">
+            <label for="expiry_timeline" class="form-label"><i class="fas fa-calendar-alt"></i> {{
+              form.expiry_timeline.label }}</label>
+            {{ form.expiry_timeline(class="form-control", id="expiry_timeline", value=form.expiry_timeline.data if
+            form.expiry_timeline.data else '') }}
+          </div>
+
+
+          <div class="mb-3">
+            <label for="city" class="form-label"><i class="fas fa-city"></i> {{ form.city.label }}</label>
+            {{ form.city(class="form-control", id="city", value=form.city.data if form.city.data else '') }}
+          </div>
+
+
+          <div class="mb-3">
+            <label for="pin_code" class="form-label"><i class="fas fa-map-marker-alt"></i> {{ form.pin_code.label
+              }}</label>
+            {{ form.pin_code(class="form-control", id="pin_code", value=form.pin_code.data if form.pin_code.data else
+            '') }}
+          </div>
+
+
+          <div class="mb-3">
+            <label for="image" class="form-label"><i class="fas fa-image"></i> {{ form.image.label }}</label>
+            {{ form.image(class="form-control", id="image") }}
+          </div>
+
+
+          <div class="form-check mb-3">
+            {{ form.is_paid(class="form-check-input", id="isPaidCheck", checked='checked' if form.is_paid.data else '')
+            }}
+            <label for="isPaidCheck" class="form-check-label">₹ {{ form.is_paid.label }}</label>
+          </div>
+
+          <div id="priceField" class="price-field mb-3" style="display: none;">
+            <label for="price" class="form-label"><i class="fas fa-tag"></i> {{ form.price.label }}</label>
+            {{ form.price(class="form-control", id="price", value=form.price.data if form.price.data else '') }}
+          </div>
+
+
+          <button type="submit" class="btn btn-success btn-hover w-100">
+            <i class="fas fa-check-circle"></i> {{ 'Update Listing' if edit_mode else 'Post Listing' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+  function togglePriceField() {
+    const isPaidCheckbox = document.getElementById("isPaidCheck");
+    const priceField = document.getElementById("priceField");
+    priceField.style.display = isPaidCheckbox.checked ? "block" : "none";
+  }
+
+
+  document.getElementById("isPaidCheck").addEventListener("change", togglePriceField);
+
+
+  window.addEventListener("DOMContentLoaded", togglePriceField);
+</script>
+{% endblock %}
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">

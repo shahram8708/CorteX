@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.8s ease-in-out;
+  }
+
+  .login-card {
+    background-color: white;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    max-width: 420px;
+    width: 100%;
+    transition: transform 0.3s ease;
+  }
+
+  .login-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    border-color: #0d6efd;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .form-label i {
+    margin-right: 6px;
+  }
+
+  .form-text {
+    font-size: 0.875rem;
+  }
+</style>
+
+<div class="login-container">
+  <div class="login-card">
+    <h3 class="mb-4 text-center text-primary"><i class="fas fa-sign-in-alt me-2"></i>Welcome Back</h3>
+
+    <form method="POST" id="login-form">
+      {{ form.hidden_tag() }}
+
+
+      <div class="mb-3">
+        <label for="{{ form.email.id }}" class="form-label">
+          <i class="fas fa-envelope"></i>Email address
+        </label>
+        {{ form.email(class="form-control", placeholder="you@example.com", id=form.email.id) }}
+        <div class="form-text" data-bs-toggle="tooltip" title="Enter your registered email">We'll never share your
+          email.</div>
+      </div>
+
+
+      <div class="mb-3">
+        <label for="{{ form.password.id }}" class="form-label">
+          <i class="fas fa-lock"></i>Password
+        </label>
+        {{ form.password(class="form-control", placeholder="••••••••", id=form.password.id) }}
+      </div>
+
+
+      <button type="submit" id="login-btn" class="btn btn-primary w-100 position-relative">
+        <i class="fas fa-sign-in-alt me-2"></i>Login
+        <span id="spinner" class="spinner-border spinner-border-sm ms-2 position-absolute end-0 me-3 d-none"
+          role="status" aria-hidden="true"></span>
+      </button>
+    </form>
+
+
+    <p class="mt-3 text-center text-muted">Don't have an account?
+      <a href="{{ url_for('main.register') }}" class="text-decoration-none">
+        <i class="fas fa-user-plus me-1"></i>Register here
+      </a>
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+  });
+
+
+  document.getElementById("login-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const submitBtn = document.getElementById("login-btn");
+    const spinner = document.getElementById("spinner");
+
+    submitBtn.disabled = true;
+    spinner.classList.remove("d-none");
+
+
+    setTimeout(() => {
+      this.submit();
+    }, 1200);
+  });
+</script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}

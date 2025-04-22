@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease-in-out;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+
+<div class="container-fluid fade-in">
+    <div class="row">
+
+        <div class="col-md-3 mb-4">
+            <div class="list-group shadow-sm sticky-top">
+                <div class="list-group-item bg-dark text-white text-center py-3">
+                    <h5 class="mb-0">{{ current_user.name }}</h5>
+                    <small>{{ current_user.user_type|capitalize }}</small>
+                </div>
+                <a href="{{ url_for('main.profile') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-user"></i> Profile
+                </a>
+                <a href="{{ url_for('main.post_food') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-plus-circle"></i> Post Food
+                </a>
+                <a href="{{ url_for('main.my_listings') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-boxes-stacked"></i> My Listings
+                </a>
+                <a href="{{ url_for('main.received_requests') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-envelope-open-text"></i> Received Requests
+                </a>
+                <a href="{{ url_for('main.donor_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-hand-holding-heart"></i> Donor Dashboard
+                </a>
+                <a href="{{ url_for('main.logout') }}" class="list-group-item list-group-item-action text-danger">
+                    <i class="fa fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+
+
+        <div class="col-md-9">
+            <h2 class="mb-4"><i class="fa fa-hand-holding-box text-primary"></i> Donor Dashboard</h2>
+
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white shadow-sm card-hover">
+                        <div class="card-body text-center">
+                            <i class="fa fa-drumstick-bite fa-2x mb-2"></i>
+                            <h5>Total Donations</h5>
+                            <h3>{{ total_posts }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white shadow-sm card-hover">
+                        <div class="card-body text-center">
+                            <i class="fa fa-check-circle fa-2x mb-2"></i>
+                            <h5>Pickups Completed</h5>
+                            <h3>{{ completed_requests }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-info text-white shadow-sm card-hover">
+                        <div class="card-body text-center">
+                            <i class="fa fa-weight-hanging fa-2x mb-2"></i>
+                            <h5>Food Saved</h5>
+                            <h3>{{ food_saved }} kg</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="card mt-4 shadow-sm card-hover">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <span><i class="fa fa-chart-bar text-primary"></i> Monthly Donations</span>
+                    <span class="badge bg-secondary">Live Data</span>
+                </div>
+                <div class="card-body">
+                    <canvas id="donationChart" style="height:300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('donationChart').getContext('2d');
+    const donationChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_labels | tojson }},
+    datasets: [{
+        label: 'Monthly Donations',
+        data: {{ chart_data | tojson }},
+        backgroundColor: 'rgba(0, 123, 255, 0.5)',
+        borderColor: 'rgba(0, 123, 255, 1)',
+        borderWidth: 2,
+        borderRadius: 5,
+        barThickness: 40
+      }]
+    },
+    options: {
+        responsive: true,
+            plugins: {
+            tooltip: {
+                backgroundColor: '#343a40',
+                    titleColor: '#fff',
+                        bodyColor: '#fff',
+        },
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                    ticks: { stepSize: 1 }
+            }
+        }
+    }
+  });
+</script>
+{% endblock %}

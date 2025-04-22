@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Home – CorteX{% endblock %}
+
+{% block content %}
+
+<meta name="description"
+    content="CorteX – A 100% free platform connecting excess food to people in need. No commission, no charges, just impact.">
+
+
+<section class="hero-section text-center text-white"
+    style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://picsum.photos/1600/800?random&t=1'); background-size: cover; background-position: center; padding: 100px 0;">
+    <div class="container">
+        <h1 class="display-4 mb-3 animate__animated animate__fadeIn animate__delay-1s">CorteX: Connect, Contribute,
+            Change</h1>
+        <p class="lead mb-4 animate__animated animate__fadeIn animate__delay-2s">
+            A 100% Free Platform to Fight Hunger and Food Waste. No Commission. No Charges. Just Impact.
+        </p>
+        <div class="d-flex justify-content-center">
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.view_listings') }}"
+                class="btn btn-lg btn-light mx-2 animate__animated animate__pulse animate__delay-3s">Find Food</a>
+            <a href="{{ url_for('main.post_food') }}"
+                class="btn btn-lg btn-success mx-2 animate__animated animate__pulse animate__delay-3s">Donate Food</a>
+            {% else %}
+            <a href="{{ url_for('main.login') }}"
+                class="btn btn-lg btn-light mx-2 animate__animated animate__pulse animate__delay-3s">Find Food</a>
+            <a href="{{ url_for('main.login') }}"
+                class="btn btn-lg btn-success mx-2 animate__animated animate__pulse animate__delay-3s">Donate Food</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+
+<section class="py-5 bg-light text-center">
+    <div class="container">
+        <h2 class="display-5 mb-3">Our Mission</h2>
+        <p class="lead">
+            To create a world where no meal goes to waste and no one goes hungry by connecting donors, NGOs, and
+            individuals seamlessly.
+        </p>
+        <h2 class="display-5 mt-5 mb-3">Why CorteX?</h2>
+        <p class="lead text-success fw-bold">
+            🚫 0% Commission – 💯 Completely Free – 🌱 100% Impact-Focused
+        </p>
+    </div>
+</section>
+
+
+<section class="features-section py-5 text-center">
+    <div class="container">
+        <h2 class="display-4 mb-4">How CorteX Works</h2>
+        <div class="row">
+            {% for item in [
+            ('fa-utensils', 'Post Surplus Food', 'Restaurants, hotels, or individuals can share excess food easily.'),
+            ('fa-hands-helping', 'Match with NGOs', 'Nearby NGOs are notified instantly and can coordinate pickups.'),
+            ('fa-bolt', 'No Middlemen, No Fees', 'We don’t take a cut. Everything is done directly and freely.'),
+            ('fa-chart-bar', 'Track Your Impact', 'See meals saved, beneficiaries helped, and waste reduced.')
+            ] %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 shadow border-0 hover-animate">
+                    <div class="card-body">
+                        <i class="fa {{ item[0] }} fa-3x mb-3 text-success"></i>
+                        <h5 class="card-title">{{ item[1] }}</h5>
+                        <p class="card-text">{{ item[2] }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+
+<section class="how-it-works py-5 bg-light">
+    <div class="container text-center">
+        <h2 class="display-4 mb-5">Your Journey with CorteX</h2>
+        <div class="row">
+            {% for step in [
+            ('fa-user-plus', 'Register', 'Sign up as a donor, NGO, or individual.'),
+            ('fa-upload', 'Post or Request Food', 'Share your surplus or request help.'),
+            ('fa-comments', 'Coordinate', 'Talk directly and arrange pickups.'),
+            ('fa-heart', 'Make an Impact', 'Watch your food nourish someone’s life.')
+            ] %}
+            <div class="col-md-3 mb-3">
+                <div class="card border-0 shadow-lg hover-animate">
+                    <div class="card-body text-center">
+                        <i class="fa {{ step[0] }} fa-3x mb-3 text-primary"></i>
+                        <h5 class="card-title">{{ step[1] }}</h5>
+                        <p class="card-text">{{ step[2] }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-6">
+                <h3 class="mb-4">What Our Community Says</h3>
+                <div class="carousel slide" data-bs-ride="carousel" id="testimonialsCarousel">
+                    <div class="carousel-inner">
+                        {% for review in [
+                        ("'Thanks to CorteX, we feed more than 100 people weekly – all without any fee!'", "– Arjun
+                        Singh, Local NGO"),
+                        ("'We now share party leftovers effortlessly. It’s beautiful seeing food reach someone in
+                        need.'", "– Neha Mehta, Donor")
+                        ] %}
+                        <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
+                            <p>{{ review[0] }}</p>
+                            <footer class="blockquote-footer">{{ review[1] }}</footer>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#testimonialsCarousel"
+                        data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#testimonialsCarousel"
+                        data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h3 class="mb-4">Our Impact in Numbers</h3>
+                <div class="counter-container">
+                    <div class="counter-item">
+                        <h2 class="counter" data-count="1500">0</h2>
+                        <p>Meals Saved</p>
+                    </div>
+                    <div class="counter-item">
+                        <h2 class="counter" data-count="800">0</h2>
+                        <p>People Helped</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const counters = document.querySelectorAll('.counter');
+        counters.forEach(counter => {
+            const target = +counter.dataset.count;
+            let current = 0;
+            const speed = 50;
+            const update = () => {
+                const inc = Math.ceil(target / 40);
+                if (current < target) {
+                    current += inc;
+                    counter.innerText = current;
+                    setTimeout(update, speed);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+            update();
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease-in-out;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+
+<div class="container-fluid fade-in">
+    <div class="row">
+
+        <div class="col-md-3 mb-4">
+            <div class="list-group shadow-sm sticky-top">
+                <div class="list-group-item bg-dark text-white text-center py-3">
+                    <h5 class="mb-0">{{ current_user.name }}</h5>
+                    <small>{{ current_user.user_type|capitalize }}</small>
+                </div>
+                <a href="{{ url_for('main.profile') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-user"></i> Profile
+                </a>
+                <a href="{{ url_for('main.post_food') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-plus-circle"></i> Post Food
+                </a>
+                <a href="{{ url_for('main.my_listings') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-boxes-stacked"></i> My Listings
+                </a>
+                <a href="{{ url_for('main.received_requests') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-envelope-open-text"></i> Received Requests
+                </a>
+                {% if current_user.user_type == 'donor' %}
+                <a href="{{ url_for('main.donor_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-donate"></i> Donor Dashboard
+                </a>
+                {% elif current_user.user_type == 'ngo' %}
+                <a href="{{ url_for('main.ngo_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-hands-helping"></i> NGO Dashboard
+                </a>
+                {% elif current_user.user_type == 'restaurant' %}
+                <a href="{{ url_for('main.restaurant_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-utensils"></i> Restaurant Dashboard
+                </a>
+                {% elif current_user.user_type == 'beneficiary' %}
+                <a href="{{ url_for('main.beneficiary_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-heart"></i> Beneficiary Dashboard
+                </a>
+                {% endif %}
+                <a href="{{ url_for('main.logout') }}" class="list-group-item list-group-item-action text-danger">
+                    <i class="fa fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+
+
+        <div class="col-md-9">
+            <h2 class="mb-4"><i class="fa fa-chart-line text-primary"></i> Dashboard Overview</h2>
+
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white shadow-sm card-hover">
+                        <div class="card-body text-center">
+                            <i class="fa fa-box fa-2x mb-2"></i>
+                            <h5>Total Posts</h5>
+                            <h3>{{ total_posts }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white shadow-sm card-hover">
+                        <div class="card-body text-center">
+                            <i class="fa fa-check-circle fa-2x mb-2"></i>
+                            <h5>Pickups Completed</h5>
+                            <h3>{{ completed_requests }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-info text-white shadow-sm card-hover">
+                        <div class="card-body text-center">
+                            <i class="fa fa-seedling fa-2x mb-2"></i>
+                            <h5>Food Saved</h5>
+                            <h3>{{ food_saved }} kg</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="card mt-4 shadow-sm card-hover">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <span><i class="fa fa-chart-area text-primary"></i> Monthly Donations Trend</span>
+                    <span class="badge bg-secondary">Live Analytics</span>
+                </div>
+                <div class="card-body">
+                    <canvas id="donationChart" style="height:300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('donationChart').getContext('2d');
+    const donationChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels | tojson }},
+    datasets: [{
+        label: 'Donations',
+        data: {{ chart_data | tojson }},
+        backgroundColor: 'rgba(13, 110, 253, 0.2)',
+        borderColor: 'rgba(13, 110, 253, 1)',
+        borderWidth: 3,
+        tension: 0.4,
+        fill: true,
+        pointRadius: 5,
+        pointHoverRadius: 8
+      }]
+    },
+    options: {
+        responsive: true,
+            plugins: {
+            tooltip: {
+                backgroundColor: '#343a40',
+                    titleColor: '#fff',
+                        bodyColor: '#fff',
+        },
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                    ticks: { stepSize: 1 }
+            }
+        }
+    }
+  });
+</script>
+{% endblock %}

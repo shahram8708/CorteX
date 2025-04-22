@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .card-lift {
+        transition: all 0.3s ease;
+    }
+
+    .card-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .gradient-header {
+        background: linear-gradient(90deg, #6a11cb, #2575fc);
+        color: white;
+        padding: 1rem;
+        border-radius: 0.5rem 0.5rem 0 0;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="container mt-4 fade-in">
+    <div class="card card-lift shadow border-0">
+        <div class="gradient-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="fas fa-utensils me-2"></i>{{ post.item_name }}</h4>
+            {% if post.in_stock %}
+            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>In Stock</span>
+            {% else %}
+            <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Out of Stock</span>
+            {% endif %}
+        </div>
+        <div class="card-body row">
+
+            {% if post.image_filename %}
+            <div class="col-md-4 text-center mb-3">
+                <img src="{{ url_for('static', filename='uploads/' ~ post.image_filename) }}"
+                    class="img-fluid rounded shadow-sm" alt="Item Image">
+            </div>
+            {% endif %}
+
+
+            <div class="col-md-8">
+                <p><i class="fas fa-info-circle text-primary me-1"></i><strong>Description:</strong> {{ post.description
+                    }}</p>
+                <p><i class="fas fa-sort-numeric-up text-secondary me-1"></i><strong>Quantity:</strong> {{ post.quantity
+                    }}</p>
+                <p><i class="fas fa-clock text-warning me-1"></i><strong>Expires:</strong> {{ post.expiry_timeline }}
+                </p>
+                <p><i class="fas fa-map-marker-alt text-danger me-1"></i><strong>City:</strong> {{ post.city }} |
+                    <strong>PIN:</strong> {{ post.pin_code }}</p>
+                <p><i class="fas fa-user text-info me-1"></i><strong>Posted by:</strong> {{ post.donor.name }} ({{
+                    post.donor.user_type|capitalize }})</p>
+
+                {% if post.is_paid %}
+                <p><i class="fas fa-rupee-sign text-success me-1"></i><strong>Price:</strong> ₹{{ post.price }}</p>
+                {% else %}
+                <p><i class="fas fa-gift text-success me-1"></i><strong>This item is free.</strong></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+            {% if current_user.id == post.donor_id %}
+            <div>
+                <a href="{{ url_for('main.edit_food', post_id=post.id) }}" class="btn btn-outline-secondary btn-sm me-2"
+                    data-bs-toggle="tooltip" title="Edit Listing">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+                <form method="POST" action="{{ url_for('main.delete_food', post_id=post.id) }}" class="d-inline">
+                    <button class="btn btn-outline-danger btn-sm"
+                        onclick="return confirm('Are you sure you want to delete this listing?');">
+                        <i class="fas fa-trash-alt me-1"></i>Delete
+                    </button>
+                </form>
+
+                {% if post.in_stock %}
+                <form method="POST" action="{{ url_for('main.mark_out_of_stock', post_id=post.id) }}" class="d-inline">
+                    <button class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Mark as unavailable">
+                        <i class="fas fa-box-open me-1"></i>Out of Stock
+                    </button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('main.mark_in_stock', post_id=post.id) }}" class="d-inline me-2">
+                    <button class="btn btn-success btn-sm" data-bs-toggle="tooltip" title="Mark as available">
+                        <i class="fas fa-box me-1"></i>In Stock
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+
+            {% else %}
+            {% if post.in_stock %}
+            {% if user_request %}
+            <span class="badge 
+              {% if user_request.status == 'Pending' %} bg-warning text-dark
+              {% elif user_request.status == 'Accepted' %} bg-success
+              {% elif user_request.status == 'Completed' %} bg-secondary
+              {% endif %}
+            ">
+                <i class="fas fa-info-circle me-1"></i>{{ user_request.status }}
+            </span>
+            {% else %}
+            <form method="POST" action="{{ url_for('main.request_pickup', post_id=post.id) }}"
+                id="request-form-{{ post.id }}">
+                <button class="btn btn-primary btn-sm" id="request-button-{{ post.id }}"
+                    onclick="showSpinner({{ post.id }})">
+                    <span id="spinner-{{ post.id }}" class="spinner-border spinner-border-sm d-none" role="status"
+                        aria-hidden="true"></span>
+                    <span id="button-text-{{ post.id }}"><i class="fas fa-hand-holding-heart me-1"></i>Request
+                        Pickup</span>
+                </button>
+            </form>
+            {% endif %}
+            {% else %}
+            <div class="alert alert-warning mt-2 w-100"><i class="fas fa-exclamation-circle me-1"></i>This item is
+                currently out of stock.</div>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+
+    function showSpinner(postId) {
+        var button = document.getElementById("request-button-" + postId);
+        var spinner = document.getElementById("spinner-" + postId);
+        var buttonText = document.getElementById("button-text-" + postId);
+
+        spinner.classList.remove("d-none");
+        buttonText.classList.add("d-none");
+        button.disabled = true;
+
+        document.getElementById("request-form-" + postId).submit();
+    }
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}

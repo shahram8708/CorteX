@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+  .card-lift {
+    transition: all 0.3s ease;
+  }
+
+  .card-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+
+
+  .badge-status {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    text-transform: capitalize;
+  }
+
+  .badge-status.pending {
+    background-color: #f8c42f;
+    color: #212529;
+  }
+
+  .badge-status.accepted {
+    background-color: #28a745;
+    color: #fff;
+  }
+
+  .badge-status.completed {
+    background-color: #6c757d;
+    color: #fff;
+  }
+
+
+  .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 2px;
+  }
+
+
+  .fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+</style>
+
+
+<div class="container mt-5 fade-in">
+  <h3 class="mb-4">
+    <i class="fas fa-hand-holding-box me-2 text-primary"></i>Pickup Requests for Your Listings
+  </h3>
+
+  {% if requests %}
+  <div class="table-responsive shadow-sm rounded-3 border-0">
+    <table class="table table-striped table-hover table-bordered align-middle">
+      <thead class="bg-primary text-white">
+        <tr>
+          <th scope="col">Food Item</th>
+          <th scope="col">Requester</th>
+          <th scope="col">Status</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for request in requests %}
+        <tr>
+          <td>{{ request.foodpost.item_name }}</td>
+          <td>{{ request.requesting_user.name }}</td>
+          <td>
+            <span class="badge badge-status 
+                  {% if request.status == 'Pending' %} pending
+                  {% elif request.status == 'Accepted' %} accepted
+                  {% elif request.status == 'Completed' %} completed
+                  {% endif %}
+                ">
+              <i
+                class="fas fa-{{ 'hourglass-start' if request.status == 'Pending' else 'check-circle' if request.status == 'Accepted' else 'clock' }}"></i>
+              {{ request.status }}
+            </span>
+          </td>
+          <td>
+            {% if request.status == 'Pending' %}
+            <form method="POST" action="{{ url_for('main.accept_request', request_id=request.id) }}"
+              id="accept-form-{{ request.id }}">
+              <button class="btn btn-success btn-sm" id="accept-button-{{ request.id }}"
+                onclick="showSpinner({{ request.id }})">
+                <span id="accept-spinner-{{ request.id }}" class="spinner-border spinner-border-sm d-none" role="status"
+                  aria-hidden="true"></span>
+                <span id="accept-text-{{ request.id }}">Accept</span>
+              </button>
+            </form>
+            {% endif %}
+
+            {% if request.status == 'Accepted' %}
+            <form method="POST" action="{{ url_for('main.complete_request', request_id=request.id) }}"
+              id="complete-form-{{ request.id }}">
+              <button class="btn btn-primary btn-sm" id="complete-button-{{ request.id }}"
+                onclick="showSpinner({{ request.id }})">
+                <span id="complete-spinner-{{ request.id }}" class="spinner-border spinner-border-sm d-none"
+                  role="status" aria-hidden="true"></span>
+                <span id="complete-text-{{ request.id }}">Complete</span>
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center mt-3">
+    <i class="fas fa-info-circle me-2"></i>No pickup requests made yet.
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+  function showSpinner(requestId) {
+
+    var acceptButton = document.getElementById("accept-button-" + requestId);
+    var acceptSpinner = document.getElementById("accept-spinner-" + requestId);
+    var acceptText = document.getElementById("accept-text-" + requestId);
+
+
+    var completeButton = document.getElementById("complete-button-" + requestId);
+    var completeSpinner = document.getElementById("complete-spinner-" + requestId);
+    var completeText = document.getElementById("complete-text-" + requestId);
+
+
+    if (acceptButton) {
+      acceptSpinner.classList.remove("d-none");
+      acceptText.classList.add("d-none");
+      acceptButton.disabled = true;
+    }
+
+    if (completeButton) {
+      completeSpinner.classList.remove("d-none");
+      completeText.classList.add("d-none");
+      completeButton.disabled = true;
+    }
+
+
+    if (document.getElementById("accept-form-" + requestId)) {
+      document.getElementById("accept-form-" + requestId).submit();
+    } else if (document.getElementById("complete-form-" + requestId)) {
+      document.getElementById("complete-form-" + requestId).submit();
+    }
+  }
+</script>
+{% endblock %}
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
