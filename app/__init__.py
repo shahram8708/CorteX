@@ -27,12 +27,12 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-    @app.errorhandler(404)
-    def page_not_found(e):
-        return render_template('404.html', message="Sorry, the page you are looking for does not exist."), 404
+    # @app.errorhandler(404)
+    # def page_not_found(e):
+    #     return render_template('404.html', message="Sorry, the page you are looking for does not exist."), 404
 
-    @app.errorhandler(Exception)
-    def handle_exception(e):
-        return render_template('404.html', message="An error occurred. Please try again later."), 404
+    # @app.errorhandler(Exception)
+    # def handle_exception(e):
+    #     return render_template('404.html', message="An error occurred. Please try again later."), 404
 
     return app
