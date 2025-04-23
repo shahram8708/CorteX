@@ -9,3 +9,4 @@ Flask-Migrate
 Flask-Mail
 Flask-Bcrypt
 gunicorn
+psycopg2

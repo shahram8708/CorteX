@@ -368,11 +368,15 @@ def delete_food(post_id):
     return redirect(url_for('main.my_listings'))
 
 @main.route('/listing/<int:post_id>')
-@login_required
 def listing_detail(post_id):
     post = FoodPost.query.get_or_404(post_id)
 
-    user_request = PickupRequest.query.filter_by(requesting_user_id=current_user.id, foodpost_id=post_id).first()
+    user_request = None
+    if current_user.is_authenticated:
+        user_request = PickupRequest.query.filter_by(
+            requesting_user_id=current_user.id,
+            foodpost_id=post_id
+        ).first()
 
     return render_template('listing_detail.html', post=post, user_request=user_request)
 
@@ -439,20 +443,25 @@ def my_listings():
     return render_template('my_listings.html', posts=posts)
 
 @main.route('/view_listings')
-@login_required
 def view_listings():
-    if current_user.user_type not in REQUESTER_USER_TYPES:
-        flash("Only NGOs and Beneficiaries can view listings.", "warning")
-        return redirect(url_for("main.login"))
-    
-    pin_code = current_user.address[-6:]  
-    posts = FoodPost.query.filter_by(pin_code=pin_code).all()
+    pin_code = None
+    user_requests = {}
 
-    
-    user_requests = {
-        r.foodpost_id: r.status
-        for r in PickupRequest.query.filter_by(requesting_user_id=current_user.id).all()
-    }
+    if current_user.is_authenticated:
+        if current_user.user_type not in REQUESTER_USER_TYPES:
+            flash("Only NGOs and Beneficiaries can view listings.", "warning")
+            return redirect(url_for("main.login"))
+
+        pin_code = current_user.address[-6:]
+        user_requests = {
+            r.foodpost_id: r.status
+            for r in PickupRequest.query.filter_by(requesting_user_id=current_user.id).all()
+        }
+    else:
+        posts = FoodPost.query.all()
+        return render_template('view_listings.html', posts=posts, user_requests=user_requests)
+
+    posts = FoodPost.query.filter_by(pin_code=pin_code).all()
 
     return render_template('view_listings.html', posts=posts, user_requests=user_requests)
 

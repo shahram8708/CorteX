@@ -86,7 +86,12 @@
       <tbody>
         {% for request in requests %}
         <tr>
-          <td>{{ request.foodpost.item_name }}</td>
+          <td>
+            <a href="{{ url_for('main.listing_detail', post_id=request.foodpost.id) }}"
+              style="text-decoration: none; color: #007BFF; font-weight: 500;">
+              {{ request.foodpost.item_name }}
+            </a>
+          </td>
           <td>{{ request.requesting_user.name }}</td>
           <td>
             <span class="badge badge-status 

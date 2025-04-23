@@ -1,8 +1,8 @@
 import os
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'this-is-a-secret-key'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///foodbridge.db'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'CorteX-6708b3d-4a2e-8c0f-1a5f7b9c6d2e'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://cortex_ufm2_user:eNOilAH83ZFiOw1jxrVcRTJUCx0CknN1@dpg-d0459mbuibrs73ap00ng-a.singapore-postgres.render.com/cortex_ufm2'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = "smtp.gmail.com"  
     MAIL_PORT = 587  
