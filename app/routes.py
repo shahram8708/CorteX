@@ -656,3 +656,48 @@ CorteX Team
 """
     mail.send(msg)  
 
+@main.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username == 'cortex' and password == 'cortex@6708':
+            session['admin_logged_in'] = True
+            flash('Logged in successfully as Admin.', 'success')
+            return redirect(url_for('main.admin_users'))
+        else:
+            flash('Invalid username or password', 'danger')
+
+    return render_template('admin_login.html')
+
+@main.route('/admin/logout')
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    flash('Logged out successfully.', 'info')
+    return redirect(url_for('main.admin_login'))
+
+from functools import wraps
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('admin_logged_in'):
+            flash('Admin login required', 'warning')
+            return redirect(url_for('main.admin_login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@main.route('/admin/users')
+@admin_required
+def admin_users():
+    users = User.query.all()
+    return render_template('admin_users.html', users=users)
+
+@main.route('/admin/delete_user/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    flash(f'User {user.name} deleted successfully.', 'success')
+    return redirect(url_for('main.admin_users'))
