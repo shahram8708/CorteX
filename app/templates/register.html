@@ -110,11 +110,67 @@
 
       <div class="mb-3">
         <label for="{{ form.address.id }}" class="form-label">
-          <i class="fas fa-map-marker-alt"></i>Address
+          <i class="fas fa-map-marker-alt"></i> Address
         </label>
-        {{ form.address(class="form-control", placeholder="123 Street Name, City", id=form.address.id) }}
+        <div class="input-group">
+          {{ form.address(class="form-control", placeholder="Enter Address or click to get your location",
+          id=form.address.id) }}
+
+          <button type="button" id="getLocationBtn" class="btn btn-outline-primary"
+            title="Click to get your current location">
+            <i class="fas fa-location-arrow"></i>
+          </button>
+        </div>
+
+        <small class="form-text text-muted">
+          <i class="fas fa-info-circle"></i> Click the location icon to automatically fill your address based on your
+          current location.
+        </small>
       </div>
 
+      <script>
+        document.getElementById('getLocationBtn').addEventListener('click', function () {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+              var latitude = position.coords.latitude;
+              var longitude = position.coords.longitude;
+
+              var url = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`;
+
+              fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                  if (data.address) {
+                    var address = [
+                      data.address.road,
+                      data.address.suburb,
+                      data.address.city_district,
+                      data.address.city,
+                      data.address.state_district,
+                      data.address.state,
+                      data.address.country,
+                      data.address.postcode
+                    ]
+                      .filter(Boolean)
+                      .join(', ');
+
+                    document.getElementById('{{ form.address.id }}').value = address;
+                  } else {
+                    alert('Address not found for the current location.');
+                  }
+                })
+                .catch(error => {
+                  console.error('Error fetching address:', error);
+                  alert('Could not fetch the address.');
+                });
+            }, function (error) {
+              alert('Geolocation is not supported or permission denied.');
+            });
+          } else {
+            alert('Geolocation is not supported by this browser.');
+          }
+        });
+      </script>
 
       <div class="mb-4">
         <label for="{{ form.user_type.id }}" class="form-label">
