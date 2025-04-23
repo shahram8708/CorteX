@@ -10,3 +10,4 @@ Flask-Mail
 Flask-Bcrypt
 gunicorn
 psycopg2
+email-validator
