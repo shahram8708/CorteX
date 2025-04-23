@@ -2,7 +2,7 @@ import os
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'CorteX-6708b3d-4a2e-8c0f-1a5f7b9c6d2e'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///site.db' 
+    SQLALCHEMY_DATABASE_URI = 'postgresql://cortex_5wwb_user:r3g1L6pYz1U71QW39LziaObjGnajaam6@dpg-d0465kqdbo4c73e9sqfg-a.singapore-postgres.render.com/cortex_5wwb' 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = "smtp.gmail.com"  
     MAIL_PORT = 587  
