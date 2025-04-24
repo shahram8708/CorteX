@@ -124,10 +124,10 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
-            login_user(user)
+            login_user(user, remember=True)
+            session.permanent = True
             
-            
-            send_login_email(user.email)
+            # send_login_email(user.email)
             
             
             dashboard = f"{user.user_type}_dashboard"
@@ -135,11 +135,11 @@ def login():
         flash('Invalid email or password', 'danger')
     return render_template('login.html', form=form)
 
-def send_login_email(user_email):
-    msg = Message("Successful Login Notification",
-                  recipients=[user_email])
-    msg.body = "Dear user, you have successfully logged into your CorteX account."
-    mail.send(msg)
+# def send_login_email(user_email):
+#     msg = Message("Successful Login Notification",
+#                   recipients=[user_email])
+#     msg.body = "Dear user, you have successfully logged into your CorteX account."
+#     mail.send(msg)
 
 @main.route('/logout')
 @login_required

@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'CorteX-6708b3d-4a2e-8c0f-1a5f7b9c6d2e'
@@ -13,4 +14,5 @@ class Config:
     MAIL_DEFAULT_SENDER = "multimosaic.help@gmail.com"
     ADMIN_USERNAME = 'cortex'
     ADMIN_PASSWORD = 'cortex@6708'
-
+    REMEMBER_COOKIE_DURATION = timedelta(days=365)
+    PERMANENT_SESSION_LIFETIME = timedelta(days=365)
