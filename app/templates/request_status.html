@@ -3,69 +3,22 @@
 {% block content %}
 
 <style>
-  .card-lift {
-    transition: all 0.3s ease;
-  }
+  .card-lift { transition: all 0.3s ease; }
+  .card-lift:hover { transform: translateY(-5px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); }
 
-  .card-lift:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  }
+  .badge-status { font-size: 0.875rem; padding: 0.375rem 0.75rem; border-radius: 0.375rem; text-transform: capitalize; }
+  .badge-status.pending { background-color: #f8c42f; color: #212529; }
+  .badge-status.accepted { background-color: #28a745; color: #fff; }
+  .badge-status.completed { background-color: #6c757d; color: #fff; }
+  .badge-status.arrived { background-color: #17a2b8; color: #fff; }
+  .badge-status.other { background-color: #e9ecef; color: #212529; }
 
+  .spinner-border-sm { width: 1rem; height: 1rem; border-width: 2px; }
+  .fade-in { animation: fadeIn 0.5s ease-in-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  .badge-status {
-    font-size: 0.875rem;
-    padding: 0.375rem 0.75rem;
-    border-radius: 0.375rem;
-    text-transform: capitalize;
-  }
-
-  .badge-status.pending {
-    background-color: #f8c42f;
-    color: #212529;
-  }
-
-  .badge-status.accepted {
-    background-color: #28a745;
-    color: #fff;
-  }
-
-  .badge-status.completed {
-    background-color: #6c757d;
-    color: #fff;
-  }
-
-
-  .spinner-border-sm {
-    width: 1rem;
-    height: 1rem;
-    border-width: 2px;
-  }
-
-
-  .fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-
-  .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
 </style>
-
 
 <div class="container mt-5 fade-in">
   <h3 class="mb-4">
@@ -87,47 +40,59 @@
         {% for request in requests %}
         <tr>
           <td>
-            <a href="{{ url_for('main.listing_detail', post_id=request.foodpost.id) }}"
-              style="text-decoration: none; color: #007BFF; font-weight: 500;">
+            <a href="{{ url_for('main.listing_detail', post_id=request.foodpost.id) }}" style="text-decoration: none; color: #007BFF; font-weight: 500;">
               {{ request.foodpost.item_name }}
             </a>
           </td>
           <td>{{ request.requesting_user.name }}</td>
           <td>
             <span class="badge badge-status 
-                  {% if request.status == 'Pending' %} pending
-                  {% elif request.status == 'Accepted' %} accepted
-                  {% elif request.status == 'Completed' %} completed
-                  {% endif %}
-                ">
-              <i
-                class="fas fa-{{ 'hourglass-start' if request.status == 'Pending' else 'check-circle' if request.status == 'Accepted' else 'clock' }}"></i>
+  {% if request.status == 'Payment Successful' %} pending
+  {% elif request.status == 'Accepted' %} accepted
+  {% elif request.status == 'Completed' %} completed
+  {% elif request.status == 'Arrived' %} arrived
+  {% else %} other
+  {% endif %}">
+              <i class="fas fa-{{ 'hourglass-start' if request.status == 'Payment Successful' else 'check-circle' if request.status == 'Accepted' else 'clock' if request.status == 'Completed' else 'truck' if request.status == 'Arrived' else 'circle-question' }}"></i>
               {{ request.status }}
             </span>
           </td>
           <td>
-            {% if request.status == 'Pending' %}
-            <form method="POST" action="{{ url_for('main.accept_request', request_id=request.id) }}"
-              id="accept-form-{{ request.id }}">
-              <button class="btn btn-success btn-sm" id="accept-button-{{ request.id }}"
-                onclick="showSpinner({{ request.id }})">
-                <span id="accept-spinner-{{ request.id }}" class="spinner-border spinner-border-sm d-none" role="status"
-                  aria-hidden="true"></span>
-                <span id="accept-text-{{ request.id }}">Accept</span>
-              </button>
-            </form>
-            {% endif %}
-
-            {% if request.status == 'Accepted' %}
-            <form method="POST" action="{{ url_for('main.complete_request', request_id=request.id) }}"
-              id="complete-form-{{ request.id }}">
-              <button class="btn btn-primary btn-sm" id="complete-button-{{ request.id }}"
-                onclick="showSpinner({{ request.id }})">
-                <span id="complete-spinner-{{ request.id }}" class="spinner-border spinner-border-sm d-none"
-                  role="status" aria-hidden="true"></span>
-                <span id="complete-text-{{ request.id }}">Complete</span>
-              </button>
-            </form>
+            {% if request.status == 'Payment Successful' %}
+              <form method="POST" action="{{ url_for('main.accept_request', request_id=request.id) }}" id="accept-form-{{ request.id }}" class="d-inline">
+                <button class="btn btn-success btn-sm me-2" id="accept-button-{{ request.id }}" onclick="showSpinner({{ request.id }})" type="submit">
+                  <span id="accept-spinner-{{ request.id }}" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                  <span id="accept-text-{{ request.id }}">Accept</span>
+                </button>
+              </form>
+              <form method="POST" action="{{ url_for('main.reject_request', request_id=request.id) }}" id="reject-form-{{ request.id }}" class="d-inline">
+                <button class="btn btn-danger btn-sm" id="reject-button-{{ request.id }}" onclick="showSpinnerReject({{ request.id }})" type="submit">
+                  <span id="reject-spinner-{{ request.id }}" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                  <span id="reject-text-{{ request.id }}">Reject</span>
+                </button>
+              </form>
+            {% elif request.status == 'Accepted' %}
+              {% if not request.delivery_user_id %}
+                <form method="POST" action="{{ url_for('main.find_delivery_partner', request_id=request.id) }}" class="d-inline">
+                  <button class="btn btn-outline-primary btn-sm" type="submit">Find Delivery Partner</button>
+                </form>
+                <p class="text-muted small mt-2 mb-0">We will find a delivery partner soon. Please ignore this button unless 24 hours pass; just wait for us.</p>
+              {% endif %}
+            {% elif request.status == 'Delivery Assigned' %}
+              {% if request.delivery_user_id %}
+                <div class="mb-2">
+                  <strong>Delivery Partner:</strong> {{ request.delivery_user.name }}
+                  {% if delivery_info and delivery_info.get(request.id) %}
+                    <small class="text-muted">(Pickup {{ delivery_info[request.id].dist_donor }} km, Drop {{ delivery_info[request.id].dist_requester }} km)</small>
+                  {% endif %}
+                </div>
+                <form method="POST" action="{{ url_for('main.verify_arrival', request_id=request.id) }}" class="d-flex gap-2" style="align-items: center;">
+                  <input type="text" name="otp" placeholder="Enter Delivery OTP" class="form-control form-control-sm" required style="max-width: 150px;">
+                  <button class="btn btn-warning btn-sm" type="submit">Mark Arrival</button>
+                </form>
+              {% else %}
+                <span class="text-muted">Delivery not assigned yet</span>
+              {% endif %}
             {% endif %}
           </td>
         </tr>
@@ -146,40 +111,40 @@
 
 {% block scripts %}
 <script>
+function showSpinnerReject(requestId) {
+  var rejectButton = document.getElementById("reject-button-" + requestId);
+  var rejectSpinner = document.getElementById("reject-spinner-" + requestId);
+  var rejectText = document.getElementById("reject-text-" + requestId);
 
-  function showSpinner(requestId) {
-
-    var acceptButton = document.getElementById("accept-button-" + requestId);
-    var acceptSpinner = document.getElementById("accept-spinner-" + requestId);
-    var acceptText = document.getElementById("accept-text-" + requestId);
-
-
-    var completeButton = document.getElementById("complete-button-" + requestId);
-    var completeSpinner = document.getElementById("complete-spinner-" + requestId);
-    var completeText = document.getElementById("complete-text-" + requestId);
-
-
-    if (acceptButton) {
-      acceptSpinner.classList.remove("d-none");
-      acceptText.classList.add("d-none");
-      acceptButton.disabled = true;
-    }
-
-    if (completeButton) {
-      completeSpinner.classList.remove("d-none");
-      completeText.classList.add("d-none");
-      completeButton.disabled = true;
-    }
-
-
-    if (document.getElementById("accept-form-" + requestId)) {
-      document.getElementById("accept-form-" + requestId).submit();
-    } else if (document.getElementById("complete-form-" + requestId)) {
-      document.getElementById("complete-form-" + requestId).submit();
-    }
+  if (rejectButton) {
+    rejectSpinner.classList.remove("d-none");
+    rejectText.classList.add("d-none");
+    rejectButton.disabled = true;
   }
+
+  var rejectForm = document.getElementById("reject-form-" + requestId);
+  if (rejectForm) {
+    rejectForm.submit();
+  }
+}
+
+function showSpinner(requestId) {
+  var acceptButton = document.getElementById("accept-button-" + requestId);
+  var acceptSpinner = document.getElementById("accept-spinner-" + requestId);
+  var acceptText = document.getElementById("accept-text-" + requestId);
+
+  if (acceptButton) {
+    acceptSpinner.classList.remove("d-none");
+    acceptText.classList.add("d-none");
+    acceptButton.disabled = true;
+  }
+
+  var acceptForm = document.getElementById("accept-form-" + requestId);
+  if (acceptForm) {
+    acceptForm.submit();
+  }
+}
 </script>
 {% endblock %}
-
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">

@@ -39,6 +39,11 @@
     color: #fff;
   }
 
+  .badge-status.other {
+    background-color: #e9ecef;
+    color: #212529;
+  }
+
   .fade-in {
     animation: fadeIn 0.5s ease-in-out;
   }
@@ -69,6 +74,8 @@
           <th scope="col">Food Item</th>
           <th scope="col">Status</th>
           <th scope="col">Timestamp</th>
+          <th scope="col">Your OTP</th>
+          <th scope="col">Payment</th>  <!-- New column for payment -->
         </tr>
       </thead>
       <tbody>
@@ -82,17 +89,42 @@
           </td>
           <td>
             <span class="badge badge-status 
-                  {% if request.status == 'Pending' %} pending
-                  {% elif request.status == 'Accepted' %} accepted
-                  {% elif request.status == 'Completed' %} completed
-                  {% endif %}
-                ">
-              <i
-                class="fas fa-{{ 'hourglass-start' if request.status == 'Pending' else 'check-circle' if request.status == 'Accepted' else 'clock' }}"></i>
-              {{ request.status }}
+              {% if request.status == 'Pending' and request.payment_id %} accepted
+              {% elif request.status == 'Pending' %} pending
+              {% elif request.status == 'Accepted' %} accepted
+              {% elif request.status == 'Completed' %} completed
+              {% else %} other {% endif %}">
+              <i class="fas fa-{{ 
+                'check-circle' if (request.status == 'Pending' and request.payment_id) or request.status == 'Accepted' 
+                else 'hourglass-start' if request.status == 'Pending' 
+                else 'clock' if request.status == 'Completed'
+                else 'circle-question' }}"></i>
+              {% if request.status == 'Pending' and request.payment_id %}
+                Payment Successful
+              {% else %}
+                {{ request.status }}
+              {% endif %}
             </span>
           </td>
-          <td>{{ request.timestamp }}</td>
+          <td>{{ request.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+          <td>
+            {% if request.requester_otp %}
+              <code>{{ request.requester_otp }}</code>
+            {% else %}
+              <span class="text-muted">No OTP</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if request.payment_id %}
+              ₹{{ "%.2f"|format(request.paid_amount or 0) }}
+              <form method="POST" action="{{ url_for('main.payment_details') }}" style="display:inline;">
+                <input type="hidden" name="pickup_request_id" value="{{ request.id }}">
+                <button type="submit" class="btn btn-sm btn-info">Details</button>
+              </form>
+            {% else %}
+              <span class="text-muted">No Payment</span>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -109,7 +141,6 @@
 
 {% block scripts %}
 <script>
-
   document.addEventListener("DOMContentLoaded", function () {
     const tooltips = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltips.forEach(el => new bootstrap.Tooltip(el));

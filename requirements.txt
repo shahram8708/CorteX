@@ -11,3 +11,5 @@ Flask-Bcrypt
 gunicorn
 psycopg2
 email-validator
+python-dotenv
+razorpay>=1.4.2

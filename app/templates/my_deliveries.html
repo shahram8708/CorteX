@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>📦 My Accepted Deliveries</h2>
+
+    {% if deliveries %}
+    <div class="table-responsive mt-4">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Item</th>
+                    <th>City</th>
+                    <th>Status</th>
+                    <th>Assigned On</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in deliveries %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ r.foodpost.item_name }}</td>
+                    <td>{{ r.foodpost.city }}</td>
+                    <td>{{ r.status }}</td>
+                    <td>{{ r.timestamp.strftime('%d-%b-%Y %I:%M %p') }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#detailsModal{{ r.id }}">View Details</button>
+                        {% if r.status == 'Arrived' %}
+                        <form method="POST" action="{{ url_for('main.complete_delivery', request_id=r.id) }}" class="d-inline-block mt-1">
+                            <div class="input-group input-group-sm">
+                                <input type="text" name="requester_otp" class="form-control" placeholder="OTP" required>
+                                <button type="submit" class="btn btn-success">Complete</button>
+                            </div>
+                        </form>
+                        {% elif r.status == 'Completed' %}
+                        <span class="text-success fw-bold">✅ Completed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <!-- Modal -->
+                <div class="modal fade" id="detailsModal{{ r.id }}" tabindex="-1" aria-labelledby="detailsLabel{{ r.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="detailsLabel{{ r.id }}">Delivery Details: {{ r.foodpost.item_name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <h6>🍽️ Food Details</h6>
+                        <p><strong>Description:</strong> {{ r.foodpost.description }}</p>
+                        <p><strong>Quantity:</strong> {{ r.foodpost.quantity }}</p>
+                        <p><strong>Expiry:</strong> {{ r.foodpost.expiry_timeline }}</p>
+
+                        <hr>
+                        <h6>📦 Donor Info</h6>
+                        <p><strong>Name:</strong> {{ r.foodpost.donor.name }}</p>
+                        <p><strong>Address:</strong> {{ r.foodpost.donor.address }}</p>
+                        <p><strong>Phone:</strong> {{ r.foodpost.donor.phone }}</p>
+                        <p><strong>Email:</strong> {{ r.foodpost.donor.email }}</p>
+
+                        <hr>
+                        <h6>🎯 NGO / Beneficiary</h6>
+                        <p><strong>Name:</strong> {{ r.requesting_user.name }}</p>
+                        <p><strong>Address:</strong> {{ r.requesting_user.address }}</p>
+                        <p><strong>Phone:</strong> {{ r.requesting_user.phone }}</p>
+                        <p><strong>Email:</strong> {{ r.requesting_user.email }}</p>
+
+                        <hr>
+                        <p><strong>Delivery OTP:</strong> {{ r.delivery_otp or "Not Generated" }}</p>
+                        <p><strong>Status:</strong> {{ r.status }}</p>
+                        <p><strong>Assigned On:</strong> {{ r.timestamp.strftime('%d-%b-%Y %I:%M %p') }}</p>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted mt-4">You have not accepted any deliveries yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">Payment Details</h3>
+
+  <div class="card p-4 shadow-sm rounded">
+    <p><strong>Food Item:</strong> {{ payment.foodpost.item_name }}</p>
+    <p><strong>Payment Amount:</strong> ₹{{ "%.2f"|format(payment.paid_amount or 0) }}</p>
+
+    <p><strong>Status:</strong> {{ payment.status }}</p>
+    <p><strong>Payment ID:</strong> {{ payment.payment_id or 'N/A' }}</p>
+    <p><strong>Payment Date:</strong> {{ payment.payment_timestamp.strftime('%Y-%m-%d %H:%M:%S') if payment.payment_timestamp else payment.timestamp }}</p>
+
+    {% if payment.status.lower() == 'rejected' %}
+    <div class="alert alert-info mt-3" role="alert">
+      Amount will be credited to customer’s bank account within 5-7 working days after the refund has processed.
+    </div>
+    {% endif %}
+  </div>
+
+  <a href="{{ url_for('main.my_requests') }}" class="btn btn-primary mt-3">Back to My Requests</a>
+</div>
+{% endblock %}

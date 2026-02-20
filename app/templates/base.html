@@ -246,18 +246,30 @@
               <i class="fa fa-home"></i> Home
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.search') }}">
+              <i class="fa fa-search"></i> Search
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.view_listings') }}">
+              <i class="fa fa-list"></i> View Listings
+            </a>
+          </li>
+          {% if request.endpoint == 'main.listing_detail' and request.view_args.get('post_id') %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.listing_detail', post_id=request.view_args.get('post_id')) }}">
+              <i class="fa fa-utensils"></i> Current Listing
+            </a>
+          </li>
+          {% endif %}
           {% if current_user.is_authenticated %}
+          {% if current_user.user_type == 'restaurant' %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('main.' + current_user.user_type + '_dashboard') }}">
-              <i class="fa fa-tachometer-alt"></i> Dashboard
+            <a class="nav-link" href="{{ url_for('main.restaurant_dashboard') }}">
+              <i class="fa fa-tachometer-alt"></i> Restaurant Dashboard
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('main.profile') }}">
-              <i class="fa fa-user"></i> Profile
-            </a>
-          </li>
-          {% if current_user.user_type == 'restaurant' or current_user.user_type == 'donor' %}
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('main.post_food') }}">
               <i class="fa fa-plus-circle"></i> Post Food
@@ -270,33 +282,80 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('main.received_requests') }}">
-              <i class="fa fa-history"></i> History
+              <i class="fa fa-history"></i> Received Requests
             </a>
           </li>
-          {% endif %}
-          {% if current_user.user_type == 'ngo' or current_user.user_type == 'beneficiary' %}
+          {% elif current_user.user_type == 'donor' %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('main.view_listings') }}">
-              <i class="fa fa-search"></i> View Listings
+            <a class="nav-link" href="{{ url_for('main.donor_dashboard') }}">
+              <i class="fa fa-tachometer-alt"></i> Donor Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.post_food') }}">
+              <i class="fa fa-plus-circle"></i> Post Food
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.my_listings') }}">
+              <i class="fa fa-list-alt"></i> My Listings
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.received_requests') }}">
+              <i class="fa fa-history"></i> Received Requests
+            </a>
+          </li>
+          {% elif current_user.user_type == 'ngo' %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.ngo_dashboard') }}">
+              <i class="fa fa-tachometer-alt"></i> NGO Dashboard
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('main.my_requests') }}">
-              <i class="fa fa-history"></i> History
+              <i class="fa fa-history"></i> My Requests
+            </a>
+          </li>
+          {% elif current_user.user_type == 'beneficiary' %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.beneficiary_dashboard') }}">
+              <i class="fa fa-tachometer-alt"></i> Beneficiary Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.my_requests') }}">
+              <i class="fa fa-history"></i> My Requests
+            </a>
+          </li>
+          {% elif current_user.user_type == 'delivery' %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.delivery_dashboard') }}">
+              <i class="fa fa-tachometer-alt"></i> Delivery Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.available_deliveries') }}">
+              <i class="fa fa-motorcycle"></i> Available Deliveries
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.my_deliveries') }}">
+              <i class="fa fa-route"></i> My Deliveries
             </a>
           </li>
           {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.profile') }}">
+              <i class="fa fa-user"></i> Profile
+            </a>
+          </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('main.logout') }}">
               <i class="fa fa-sign-out-alt"></i> Logout
             </a>
           </li>
           {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('main.view_listings') }}">
-              <i class="fa fa-search"></i> Browse
-            </a>
-          </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('main.login') }}">
               <i class="fa fa-sign-in-alt"></i> Login
@@ -305,6 +364,18 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('main.register') }}">
               <i class="fa fa-user-plus"></i> Register
+            </a>
+          </li>
+          {% endif %}
+          {% if session.get('admin_logged_in') %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.admin_users') }}">
+              <i class="fa fa-users-cog"></i> Admin Users
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.admin_logout') }}">
+              <i class="fa fa-door-open"></i> Admin Logout
             </a>
           </li>
           {% endif %}
@@ -354,15 +425,18 @@
       background-color: #ffffff;
       border-top: 1px solid #ddd;
       display: flex;
-      justify-content: space-around;
+      justify-content: flex-start;
       align-items: center;
-      padding: 8px 0;
+      padding: 8px 6px;
       box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+      white-space: nowrap;
     }
 
     .mobile-footer-nav .nav-item {
-      flex: 1;
+      flex: 0 0 auto;
       text-align: center;
+      min-width: 90px;
     }
 
     .mobile-footer-nav .nav-link {
@@ -399,7 +473,36 @@
       </a>
     </div>
 
+    <div class="nav-item">
+      <a href="{{ url_for('main.search') }}" class="nav-link">
+        <i class="fa fa-search"></i>
+        <span>Search</span>
+      </a>
+    </div>
+
+    <div class="nav-item">
+      <a href="{{ url_for('main.view_listings') }}" class="nav-link">
+        <i class="fa fa-list"></i>
+        <span>Listings</span>
+      </a>
+    </div>
+
+    {% if request.endpoint == 'main.listing_detail' and request.view_args.get('post_id') %}
+    <div class="nav-item">
+      <a href="{{ url_for('main.listing_detail', post_id=request.view_args.get('post_id')) }}" class="nav-link">
+        <i class="fa fa-utensils"></i>
+        <span>Current</span>
+      </a>
+    </div>
+    {% endif %}
+
     {% if current_user.user_type == 'restaurant' or current_user.user_type == 'donor' %}
+    <div class="nav-item">
+      <a href="{{ url_for('main.' + current_user.user_type + '_dashboard') }}" class="nav-link">
+        <i class="fa fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+    </div>
     <div class="nav-item">
       <a href="{{ url_for('main.post_food') }}" class="nav-link">
         <i class="fa fa-plus-circle"></i>
@@ -415,12 +518,18 @@
     <div class="nav-item">
       <a href="{{ url_for('main.received_requests') }}" class="nav-link">
         <i class="fa fa-history"></i>
-        <span>History</span>
+        <span>Requests</span>
       </a>
     </div>
     {% endif %}
 
     {% if current_user.user_type == 'ngo' or current_user.user_type == 'beneficiary' %}
+    <div class="nav-item">
+      <a href="{{ url_for('main.' + current_user.user_type + '_dashboard') }}" class="nav-link">
+        <i class="fa fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+    </div>
     <div class="nav-item">
       <a href="{{ url_for('main.view_listings') }}" class="nav-link">
         <i class="fa fa-search"></i>
@@ -430,10 +539,32 @@
     <div class="nav-item">
       <a href="{{ url_for('main.my_requests') }}" class="nav-link">
         <i class="fa fa-history"></i>
-        <span>History</span>
+        <span>Requests</span>
       </a>
     </div>
     {% endif %}
+
+    {% if current_user.user_type == 'delivery' %}
+    <div class="nav-item">
+      <a href="{{ url_for('main.delivery_dashboard') }}" class="nav-link">
+        <i class="fa fa-tachometer-alt"></i>
+        <span>Dash</span>
+      </a>
+    </div>
+    <div class="nav-item">
+      <a href="{{ url_for('main.available_deliveries') }}" class="nav-link">
+        <i class="fa fa-motorcycle"></i>
+        <span>Available</span>
+      </a>
+    </div>
+    <div class="nav-item">
+      <a href="{{ url_for('main.my_deliveries') }}" class="nav-link">
+        <i class="fa fa-route"></i>
+        <span>My Jobs</span>
+      </a>
+    </div>
+    {% endif %}
+
     {% if current_user.is_authenticated %}
     <div class="nav-item">
       <a href="{{ url_for('main.profile') }}" class="nav-link">
@@ -441,17 +572,38 @@
         <span>Profile</span>
       </a>
     </div>
-    {% else %}
     <div class="nav-item">
-      <a href="{{ url_for('main.view_listings') }}" class="nav-link">
-        <i class="fa fa-search"></i>
-        <span>Browse</span>
+      <a href="{{ url_for('main.logout') }}" class="nav-link">
+        <i class="fa fa-sign-out-alt"></i>
+        <span>Logout</span>
       </a>
     </div>
+    {% else %}
     <div class="nav-item">
       <a href="{{ url_for('main.login') }}" class="nav-link">
         <i class="fa fa-sign-in-alt"></i>
         <span>Login</span>
+      </a>
+    </div>
+    <div class="nav-item">
+      <a href="{{ url_for('main.register') }}" class="nav-link">
+        <i class="fa fa-user-plus"></i>
+        <span>Register</span>
+      </a>
+    </div>
+    {% endif %}
+
+    {% if session.get('admin_logged_in') %}
+    <div class="nav-item">
+      <a href="{{ url_for('main.admin_users') }}" class="nav-link">
+        <i class="fa fa-users-cog"></i>
+        <span>Admin</span>
+      </a>
+    </div>
+    <div class="nav-item">
+      <a href="{{ url_for('main.admin_logout') }}" class="nav-link">
+        <i class="fa fa-door-open"></i>
+        <span>Logout</span>
       </a>
     </div>
     {% endif %}

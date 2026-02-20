@@ -1,0 +1,54 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.env
+.env.*
+.venv/
+venv/
+ENV/
+env/
+
+# Packages / build
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Testing / coverage
+.pytest_cache/
+.coverage*
+htmlcov/
+
+# Type checkers / tools
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database / local state
+*.sqlite3
+instance/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Uploaded assets
+app/static/uploads/*
+!app/static/uploads/uploads.txt

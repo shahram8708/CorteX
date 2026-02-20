@@ -60,6 +60,11 @@
                 <a href="{{ url_for('main.beneficiary_dashboard') }}" class="list-group-item list-group-item-action">
                     <i class="fa fa-heart"></i> Beneficiary Dashboard
                 </a>
+                {% elif current_user.user_type == 'delivery' %}
+                <a href="{{ url_for('main.delivery_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fa fa-motorcycle"></i> Delivery Dashboard
+                </a>
+
                 {% endif %}
                 <a href="{{ url_for('main.logout') }}" class="list-group-item list-group-item-action text-danger">
                     <i class="fa fa-sign-out-alt"></i> Logout

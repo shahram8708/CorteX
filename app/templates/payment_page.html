@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .payment-container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment-container h2 {
+        margin-bottom: 1rem;
+    }
+
+    .payment-details {
+        margin-bottom: 2rem;
+    }
+
+    .payment-details table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .payment-details th,
+    .payment-details td {
+        padding: 8px;
+        border-bottom: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .total-row {
+        font-weight: bold;
+    }
+
+    .pay-btn {
+        background: #0e6efd;
+        color: white;
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>
+<div class="payment-container">
+    <h2>Payment Summary</h2>
+
+    <div class="payment-details">
+        <table>
+            <tr>
+    <th>Item Price</th>
+    <td>₹{{ "%.2f"|format(post.price|float) }}</td>
+</tr>
+{% if platform_fee > 0 %}
+<tr>
+    <th>Platform Fee</th>
+    <td>₹{{ "%.2f"|format(platform_fee) }}</td>
+</tr>
+{% endif %}
+<tr>
+    <th>Delivery Charges ({{ "%.2f"|format(distance) }} km)</th>
+    <td>₹{{ "%.2f"|format(delivery_charge) }}</td>
+</tr>
+<tr>
+    <th>GST (5%)</th>
+    <td>₹{{ "%.2f"|format(gst) }}</td>
+</tr>
+<tr class="total-row">
+    <th>Total Amount</th>
+    <td>₹{{ "%.2f"|format(amount) }}</td>
+</tr>
+
+        </table>
+    </div>
+
+    <form action="{{ url_for('main.payment_success') }}" method="POST">
+        <script src="https://checkout.razorpay.com/v1/checkout.js"
+            data-key="rzp_test_kXRfpPBzUjfJgV"
+            data-amount="{{ (amount * 100)|int }}"
+            data-currency="INR"
+            data-order_id="{{ razorpay_order_id }}"
+            data-buttontext="Pay Now"
+            data-name="CorteX"
+            data-description="Payment for Pickup"
+            data-image="{{ url_for('static', filename='logo.png') }}"
+            data-prefill.name="{{ user.name }}"
+            data-prefill.email="{{ user.email }}"
+            data-prefill.contact="{{ phone }}"
+            data-theme.color="#0e6efd">
+        </script>
+    </form>
+</div>
+{% endblock %}

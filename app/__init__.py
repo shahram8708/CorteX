@@ -4,6 +4,7 @@ from flask_login import LoginManager
 from config import Config
 from flask_migrate import Migrate
 from flask_mail import Mail
+import razorpay
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -15,6 +16,10 @@ login_manager.login_view = 'main.login'
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    key_id = app.config.get('RAZORPAY_KEY_ID')
+    key_secret = app.config.get('RAZORPAY_KEY_SECRET')
+    app.razorpay_client = razorpay.Client(auth=(key_id, key_secret)) if key_id and key_secret else None
 
     db.init_app(app)
     mail.init_app(app)

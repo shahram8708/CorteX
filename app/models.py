@@ -13,7 +13,12 @@ class User(UserMixin, db.Model):
     phone = db.Column(db.String(15))
     address = db.Column(db.String(200))
     user_type = db.Column(db.String(50))  
-
+    bank_account_holder = db.Column(db.String(100))
+    bank_name = db.Column(db.String(100))
+    account_number = db.Column(db.String(30))
+    ifsc_code = db.Column(db.String(15))
+    upi_id = db.Column(db.String(50))
+    pan_number = db.Column(db.String(10))
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -37,25 +42,42 @@ class FoodPost(db.Model):
     is_paid = db.Column(db.Boolean, default=False)
     price = db.Column(db.String(50), nullable=True)
     donor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    donor = db.relationship('User', backref='food_posts')
     in_stock = db.Column(db.Boolean, default=True)
+    donor = db.relationship('User', backref='food_posts')
 
 from enum import Enum
 
 class RequestStatus(Enum):
-    PENDING = "Pending"
-    ACCEPTED = "Accepted"
-    COMPLETED = "Completed"
+    PENDING = 'Payment Successful'
+    ACCEPTED = 'Accepted'
+    DELIVERY_ASSIGNED = 'Delivery Assigned'
+    ARRIVED = 'Arrived'
+    COMPLETED = 'Completed'
+    REJECTED = 'Rejected'
 
 class PickupRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     foodpost_id = db.Column(db.Integer, db.ForeignKey('food_post.id'), nullable=False)
+    
     requesting_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    status = db.Column(db.String(20), nullable=False, default=RequestStatus.PENDING.value)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    donor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    delivery_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
+    status = db.Column(db.String(50), default="Pending")
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    delivery_otp = db.Column(db.String(6), nullable=True)
+    requester_otp = db.Column(db.String(6), nullable=True)
+    city = db.Column(db.String(100))
+
+    # New fields for payment details
+    paid_amount = db.Column(db.Float, nullable=True)
+    payment_id = db.Column(db.String(100), nullable=True)
+    payment_timestamp = db.Column(db.DateTime, nullable=True)
+    refund_status = db.Column(db.String(20), default="not_refunded")
+    donor = db.relationship('User', foreign_keys=[donor_id], backref='pickup_requests_received')
     foodpost = db.relationship('FoodPost', backref='pickup_requests')
-    requesting_user = db.relationship('User', backref='pickup_requests')
+    requesting_user = db.relationship('User', foreign_keys=[requesting_user_id], backref='pickup_requests_made')
+    delivery_user = db.relationship('User', foreign_keys=[delivery_user_id], backref='deliveries_assigned')
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)

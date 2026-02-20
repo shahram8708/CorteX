@@ -122,18 +122,44 @@
                 {% endif %}
             </div>
 
-
             {% else %}
             {% if post.in_stock %}
             {% if user_request %}
-            <span class="badge 
-              {% if user_request.status == 'Pending' %} bg-warning text-dark
-              {% elif user_request.status == 'Accepted' %} bg-success
-              {% elif user_request.status == 'Completed' %} bg-secondary
-              {% endif %}
-            ">
-                <i class="fas fa-info-circle me-1"></i>{{ user_request.status }}
-            </span>
+            {% if user_request.status in ['Completed', 'Rejected'] %}
+<form method="POST" action="{{ url_for('main.request_pickup', post_id=post.id) }}"
+    id="request-form-{{ post.id }}">
+    <button class="btn btn-primary btn-sm" id="request-button-{{ post.id }}"
+        onclick="showSpinner({{ post.id }})">
+        <span id="spinner-{{ post.id }}" class="spinner-border spinner-border-sm d-none" role="status"
+            aria-hidden="true"></span>
+        <span id="button-text-{{ post.id }}"><i class="fas fa-hand-holding-heart me-1"></i>Request Pickup</span>
+    </button>
+</form>
+
+{% elif user_request.status == 'Payment Pending' %}
+<form method="POST" action="{{ url_for('main.request_pickup', post_id=post.id) }}"
+    id="request-form-{{ post.id }}">
+    <button class="btn btn-warning btn-sm" id="request-button-{{ post.id }}"
+        onclick="showSpinner({{ post.id }})">
+        <span id="spinner-{{ post.id }}" class="spinner-border spinner-border-sm d-none" role="status"
+            aria-hidden="true"></span>
+        <span id="button-text-{{ post.id }}"><i class="fas fa-credit-card me-1"></i>Resume Payment</span>
+    </button>
+</form>
+
+{% else %}
+<span class="badge 
+  {% if user_request.status == 'Pending' %} bg-warning text-dark
+  {% elif user_request.status == 'Accepted' %} bg-success
+  {% elif user_request.status == 'Completed' %} bg-secondary
+  {% elif user_request.status == 'Rejected' %} bg-danger
+    {% else %} bg-light text-dark
+  {% endif %}
+">
+    <i class="fas fa-info-circle me-1"></i>{{ user_request.status }}
+</span>
+{% endif %}
+
             {% else %}
             <form method="POST" action="{{ url_for('main.request_pickup', post_id=post.id) }}"
                 id="request-form-{{ post.id }}">
@@ -147,10 +173,12 @@
             </form>
             {% endif %}
             {% else %}
-            <div class="alert alert-warning mt-2 w-100"><i class="fas fa-exclamation-circle me-1"></i>This item is
-                currently out of stock.</div>
+            <div class="alert alert-warning mt-2 w-100">
+                <i class="fas fa-exclamation-circle me-1"></i>This item is currently out of stock.
+            </div>
             {% endif %}
             {% endif %}
+
         </div>
     </div>
 </div>

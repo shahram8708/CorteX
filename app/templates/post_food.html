@@ -108,16 +108,75 @@
 
 
           <div class="mb-3">
-            <label for="city" class="form-label"><i class="fas fa-city"></i> {{ form.city.label }}</label>
-            {{ form.city(class="form-control", id="city", value=form.city.data if form.city.data else '') }}
-          </div>
+            <label for="city" class="form-label">
+              <i class="fas fa-city"></i> {{ form.city.label }}
+            </label>
+            <div class="input-group">
+              {{ form.city(class="form-control", id="city", placeholder="Enter address or click the location icon") }}
 
+              <button type="button" id="getCityLocationBtn" class="btn btn-outline-primary"
+                title="Click to auto-fill your location">
+                <i class="fas fa-location-arrow"></i>
+              </button>
+            </div>
+            <small class="form-text text-muted">
+              <i class="fas fa-info-circle"></i> Click the location icon to auto-fill your address from your current
+              location.
+            </small>
+          </div>
+          <script>
+            document.getElementById("getCityLocationBtn").addEventListener("click", function () {
+              if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+              } else {
+                alert("Geolocation is not supported by this browser.");
+              }
+            });
+
+            function successCallback(position) {
+  const lat = position.coords.latitude;
+  const lon = position.coords.longitude;
+
+  fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data && data.display_name && data.address) {
+        // Set full formatted address into "city" field (full address)
+        document.getElementById("city").value = data.display_name;
+
+        // Extract only city-level name (avoid suburb/locality/etc.)
+        let city = '';
+        if (data.address.city) {
+          city = data.address.city;
+        } else if (data.address.town) {
+          city = data.address.town;
+        } else if (data.address.village) {
+          city = data.address.village;
+        } else if (data.address.state_district) {
+          city = data.address.state_district;
+        } else if (data.address.state) {
+          city = data.address.state;
+        }
+
+        document.getElementById("pin_code").value = city;
+      } else {
+        alert("Could not fetch address. Try again.");
+      }
+    })
+    .catch(() => {
+      alert("Error fetching location data.");
+    });
+}
+
+            function errorCallback(error) {
+              alert("Location access denied or unavailable.");
+            }
+          </script>
 
           <div class="mb-3">
             <label for="pin_code" class="form-label"><i class="fas fa-map-marker-alt"></i> {{ form.pin_code.label
               }}</label>
-            {{ form.pin_code(class="form-control", id="pin_code", value=form.pin_code.data if form.pin_code.data else
-            '') }}
+            {{ form.pin_code(class="form-control", id="pin_code", readonly=True, value=form.pin_code.data if form.pin_code.data else '') }}
           </div>
 
 
